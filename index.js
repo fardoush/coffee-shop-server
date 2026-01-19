@@ -33,36 +33,58 @@ async function run() {
     await client.connect();
 
     // db connect and collection
-     const database = client.db("sample_mflix");
+    const database = client.db("sample_mflix");
     const movies = database.collection("movies");
 
     const coffeeCollection = client.db("coffeeShopDB").collection("coffee");
 
-
-    // coffee data pick || json akare data show 
-    app.get('/coffees', async(req,res) => {
+    // coffee data pick || json akare data show [Read]
+    app.get("/coffees", async (req, res) => {
       // const cursor = coffeeCollection.find();
       // const result = await cursor.toArray();
       const result = await coffeeCollection.find().toArray();
       res.send(result);
-    })
-    // 1st a json appi create korar jonno  || api bananor jonno
-  
-    app.post('/coffees', async(req,res) => {
-const newCoffee = req.body;
-    const result = await coffeeCollection.insertOne(newCoffee);
-console.log(result);
-res.send(result);
-    })
-
-    // delete 
-    app.delete('/coffees/:id', async(req,res) => {
+    });
+    // view/ spectfic id api [Specific Read]
+    app.get("/coffees/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) };
+      const result = await coffeeCollection.findOne(query, id);
+      res.send(result);
+    });
+    // 1st a json appi create korar jonno  || api bananor jonno
+
+    app.post("/coffees", async (req, res) => {
+      const newCoffee = req.body;
+      const result = await coffeeCollection.insertOne(newCoffee);
+      console.log(result);
+      res.send(result);
+    });
+
+    // [UPDATE ]
+    app.put("/coffees/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedCoffee = req.body;
+      const updateDoc = {
+        $set: updatedCoffee,
+      };
+      const result = await coffeeCollection.updateOne(
+        filter,
+        updateDoc,
+        options,
+      );
+      res.send(result);
+    });
+    
+    // delete [Delete]
+    app.delete("/coffees/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
       const result = await coffeeCollection.deleteOne(query);
       res.send(result);
-
-    })
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
