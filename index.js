@@ -37,6 +37,7 @@ async function run() {
     const movies = database.collection("movies");
 
     const coffeeCollection = client.db("coffeeShopDB").collection("coffee");
+    const userCollection = client.db('coffeeShopDB').collection('users');
 
     // coffee data pick || json akare data show [Read]
     app.get("/coffees", async (req, res) => {
@@ -85,6 +86,34 @@ async function run() {
       const result = await coffeeCollection.deleteOne(query);
       res.send(result);
     });
+
+
+    // user related APIs 
+
+// 4 delete
+app.delete('/users/:id', async(req,res) =>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  const result = await userCollection.deleteOne(query);
+  res.send(result);
+})
+      //3 clicent side a user data show korate hobe
+
+
+    // 2 data show korbe api akare
+    app.get('/users', async(req,res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result)
+    })
+  
+    // 1
+    app.post('/users', async(req,res) => {
+      const userProfile = req.body;
+      const result = await userCollection.insertOne(userProfile);
+      res.send(result);
+       
+    })
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
